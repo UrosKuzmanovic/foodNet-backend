@@ -15,61 +15,92 @@ class Ingredient
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
-    private $id;
+    private int $id;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $name;
+    private ?string $name;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $quantity;
+    private ?string $quantity;
 
     /**
      * @ORM\ManyToOne(targetEntity=Recipe::class, inversedBy="ingredients")
      */
-    private $recipe;
+    private Recipe $recipe;
 
-    public function getId(): ?int
+    /**
+     * @return int
+     */
+    public function getId(): int
     {
         return $this->id;
     }
 
+    /**
+     * @param int $id
+     * @return Ingredient
+     */
+    public function setId(int $id): Ingredient
+    {
+        $this->id = $id;
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
     public function getName(): ?string
     {
         return $this->name;
     }
 
-    public function setName(?string $name): self
+    /**
+     * @param string|null $name
+     * @return Ingredient
+     */
+    public function setName(?string $name): Ingredient
     {
         $this->name = $name;
-
         return $this;
     }
 
+    /**
+     * @return string|null
+     */
     public function getQuantity(): ?string
     {
         return $this->quantity;
     }
 
-    public function setQuantity(?string $quantity): self
+    /**
+     * @param string|null $quantity
+     * @return Ingredient
+     */
+    public function setQuantity(?string $quantity): Ingredient
     {
         $this->quantity = $quantity;
-
         return $this;
     }
 
-    public function getRecipe(): ?Recipe
+    /**
+     * @return Recipe
+     */
+    public function getRecipe(): Recipe
     {
         return $this->recipe;
     }
 
-    public function setRecipe(?Recipe $recipe): self
+    /**
+     * @param Recipe $recipe
+     * @return Ingredient
+     */
+    public function setRecipe(Recipe $recipe): Ingredient
     {
         $this->recipe = $recipe;
-
         return $this;
     }
 }

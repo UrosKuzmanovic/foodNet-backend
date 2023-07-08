@@ -30,7 +30,7 @@ class Tag
     /**
      * @ORM\ManyToOne(targetEntity=Recipe::class, inversedBy="tags")
      */
-    private ?Recipe $recipe;
+    private Recipe $recipe;
 
     /**
      * @return int|null
@@ -65,7 +65,6 @@ class Tag
     public function setName(?string $name): self
     {
         $this->name = $name;
-
         return $this;
     }
 
@@ -84,26 +83,24 @@ class Tag
     public function setColor(?string $color): self
     {
         $this->color = $color;
-
         return $this;
     }
 
     /**
      * @return Recipe|null
      */
-    public function getRecipe(): ?Recipe
+    public function getRecipe(): Recipe
     {
         return $this->recipe;
     }
 
     /**
-     * @param Recipe|null $recipe
+     * @param Recipe $recipe
      * @return $this
      */
-    public function setRecipe(?Recipe $recipe): self
+    public function setRecipe(Recipe $recipe): self
     {
         $this->recipe = $recipe;
-
         return $this;
     }
 }

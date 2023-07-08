@@ -17,47 +17,52 @@ class Recipe
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
-    private $id;
+    private int $id;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $name;
+    private ?string $name;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private $time;
+    private ?int $time;
 
     /**
      * @ORM\OneToMany(targetEntity=Ingredient::class, mappedBy="recipe")
      */
-    private $ingredients;
+    private ArrayCollection $ingredients;
 
     /**
      * @ORM\OneToMany(targetEntity=Tag::class, mappedBy="recipe")
      */
-    private $tags;
+    private ArrayCollection $tags;
 
     /**
      * @ORM\Column(type="text", nullable=true)
      */
-    private $shortDescription;
+    private ?string $shortDescription;
 
     /**
      * @ORM\Column(type="text", nullable=true)
      */
-    private $description;
+    private ?string $description;
 
     /**
      * @ORM\Column(type="text", nullable=true)
      */
-    private $tips;
+    private ?string $tips;
 
     /**
      * @ORM\Column(type="text", nullable=true)
      */
-    private $serving;
+    private ?string $serving;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Author::class, inversedBy="recipes")
+     */
+    private ?Author $author;
 
     public function __construct()
     {
@@ -65,140 +70,183 @@ class Recipe
         $this->tags = new ArrayCollection();
     }
 
-    public function getId(): ?int
+    /**
+     * @return int
+     */
+    public function getId(): int
     {
         return $this->id;
     }
 
+    /**
+     * @param int $id
+     * @return Recipe
+     */
+    public function setId(int $id): Recipe
+    {
+        $this->id = $id;
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
     public function getName(): ?string
     {
         return $this->name;
     }
 
-    public function setName(?string $name): self
+    /**
+     * @param string|null $name
+     * @return Recipe
+     */
+    public function setName(?string $name): Recipe
     {
         $this->name = $name;
-
         return $this;
     }
 
+    /**
+     * @return int|null
+     */
     public function getTime(): ?int
     {
         return $this->time;
     }
 
-    public function setTime(?int $time): self
+    /**
+     * @param int|null $time
+     * @return Recipe
+     */
+    public function setTime(?int $time): Recipe
     {
         $this->time = $time;
-
         return $this;
     }
 
     /**
-     * @return Collection<int, Ingredient>
+     * @return ArrayCollection
      */
-    public function getIngredients(): Collection
+    public function getIngredients(): ArrayCollection
     {
         return $this->ingredients;
     }
 
-    public function addIngredient(Ingredient $ingredient): self
+    /**
+     * @param ArrayCollection $ingredients
+     * @return Recipe
+     */
+    public function setIngredients(ArrayCollection $ingredients): Recipe
     {
-        if (!$this->ingredients->contains($ingredient)) {
-            $this->ingredients[] = $ingredient;
-            $ingredient->setRecipe($this);
-        }
-
-        return $this;
-    }
-
-    public function removeIngredient(Ingredient $ingredient): self
-    {
-        if ($this->ingredients->removeElement($ingredient)) {
-            // set the owning side to null (unless already changed)
-            if ($ingredient->getRecipe() === $this) {
-                $ingredient->setRecipe(null);
-            }
-        }
-
+        $this->ingredients = $ingredients;
         return $this;
     }
 
     /**
-     * @return Collection<int, Tag>
+     * @return ArrayCollection
      */
-    public function getTags(): Collection
+    public function getTags(): ArrayCollection
     {
         return $this->tags;
     }
 
-    public function addTag(Tag $tag): self
+    /**
+     * @param ArrayCollection $tags
+     * @return Recipe
+     */
+    public function setTags(ArrayCollection $tags): Recipe
     {
-        if (!$this->tags->contains($tag)) {
-            $this->tags[] = $tag;
-            $tag->setRecipe($this);
-        }
-
+        $this->tags = $tags;
         return $this;
     }
 
-    public function removeTag(Tag $tag): self
-    {
-        if ($this->tags->removeElement($tag)) {
-            // set the owning side to null (unless already changed)
-            if ($tag->getRecipe() === $this) {
-                $tag->setRecipe(null);
-            }
-        }
-
-        return $this;
-    }
-
+    /**
+     * @return string|null
+     */
     public function getShortDescription(): ?string
     {
         return $this->shortDescription;
     }
 
-    public function setShortDescription(?string $shortDescription): self
+    /**
+     * @param string|null $shortDescription
+     * @return Recipe
+     */
+    public function setShortDescription(?string $shortDescription): Recipe
     {
         $this->shortDescription = $shortDescription;
-
         return $this;
     }
 
+    /**
+     * @return string|null
+     */
     public function getDescription(): ?string
     {
         return $this->description;
     }
 
-    public function setDescription(?string $description): self
+    /**
+     * @param string|null $description
+     * @return Recipe
+     */
+    public function setDescription(?string $description): Recipe
     {
         $this->description = $description;
-
         return $this;
     }
 
+    /**
+     * @return string|null
+     */
     public function getTips(): ?string
     {
         return $this->tips;
     }
 
-    public function setTips(?string $tips): self
+    /**
+     * @param string|null $tips
+     * @return Recipe
+     */
+    public function setTips(?string $tips): Recipe
     {
         $this->tips = $tips;
-
         return $this;
     }
 
+    /**
+     * @return string|null
+     */
     public function getServing(): ?string
     {
         return $this->serving;
     }
 
-    public function setServing(?string $serving): self
+    /**
+     * @param string|null $serving
+     * @return Recipe
+     */
+    public function setServing(?string $serving): Recipe
     {
         $this->serving = $serving;
+        return $this;
+    }
 
+    /**
+     * @return Author|null
+     */
+    public function getAuthor(): ?Author
+    {
+        return $this->author;
+    }
+
+    /**
+     * @param Author|null $author
+     * @return Recipe
+     */
+    public function setAuthor(?Author $author): Recipe
+    {
+        $this->author = $author;
         return $this;
     }
 }
