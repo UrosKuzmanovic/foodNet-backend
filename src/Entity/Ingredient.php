@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\IngredientRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=IngredientRepository::class)
@@ -14,23 +15,27 @@ class Ingredient
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups({"list"})
      */
     private int $id;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups({"list"})
      */
     private ?string $name;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups({"list"})
      */
     private ?string $quantity;
 
     /**
      * @ORM\ManyToOne(targetEntity=Recipe::class, inversedBy="ingredients")
+     * @Groups({"ingredient_serialization"})
      */
-    private Recipe $recipe;
+    private ?Recipe $recipe;
 
     /**
      * @return int
@@ -87,18 +92,18 @@ class Ingredient
     }
 
     /**
-     * @return Recipe
+     * @return Recipe|null
      */
-    public function getRecipe(): Recipe
+    public function getRecipe(): ?Recipe
     {
         return $this->recipe;
     }
 
     /**
-     * @param Recipe $recipe
+     * @param Recipe|null $recipe
      * @return Ingredient
      */
-    public function setRecipe(Recipe $recipe): Ingredient
+    public function setRecipe(?Recipe $recipe): Ingredient
     {
         $this->recipe = $recipe;
         return $this;

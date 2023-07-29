@@ -6,6 +6,8 @@ use App\Repository\RecipeRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=RecipeRepository::class)
@@ -16,53 +18,98 @@ class Recipe
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups({"list"})
      */
-    private int $id;
+    private ?int $id = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Assert\NotBlank()
+     * @Groups({"list"})
      */
-    private ?string $name;
+    private ?string $name = null;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
+     * @Assert\NotBlank()
+     * @Groups({"list"})
      */
-    private ?int $time;
+    private ?int $time = null;
 
     /**
-     * @ORM\OneToMany(targetEntity=Ingredient::class, mappedBy="recipe")
+     * @var Ingredient[]|Collection
+     * @ORM\OneToMany(targetEntity=Ingredient::class, mappedBy="recipe", cascade={"all"})
+     * @Groups({"recipe_serialization"})
      */
-    private ArrayCollection $ingredients;
+    private Collection $ingredients;
 
     /**
-     * @ORM\OneToMany(targetEntity=Tag::class, mappedBy="recipe")
+     * @var Tag[]|Collection
+     * @ORM\OneToMany(targetEntity=Tag::class, mappedBy="recipe", cascade={"all"})
+     * @Groups({"recipe_serialization"})
      */
-    private ArrayCollection $tags;
-
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
-    private ?string $shortDescription;
-
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
-    private ?string $description;
+    private Collection $tags;
 
     /**
      * @ORM\Column(type="text", nullable=true)
+     * @Assert\NotBlank()
+     * @Groups({"list"})
      */
-    private ?string $tips;
+    private ?string $shortDescription = null;
 
     /**
      * @ORM\Column(type="text", nullable=true)
+     * @Assert\NotBlank()
+     * @Groups({"list"})
      */
-    private ?string $serving;
+    private ?string $description = null;
+
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     * @Groups({"list"})
+     */
+    private ?string $tips = null;
+
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     * @Groups({"list"})
+     */
+    private ?string $serving = null;
 
     /**
      * @ORM\ManyToOne(targetEntity=Author::class, inversedBy="recipes")
+     * @Groups({"list"})
      */
-    private ?Author $author;
+    private ?Author $author = null;
+
+    /**
+     * @ORM\Column(type="boolean")
+     * @Groups({"list"})
+     */
+    private bool $archived = false;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     * @Groups({"list"})
+     */
+    private ?\DateTime $createdAt = null;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     * @Groups({"list"})
+     */
+    private ?\DateTime $updatedAt = null;
+
+    /**
+     * @ORM\OneToOne(targetEntity=Image::class, inversedBy="recipe", cascade={"persist", "remove"})
+     * @Groups({"list"})
+     */
+    private ?Image $image = null;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $deletedAt;
 
     public function __construct()
     {
@@ -125,39 +172,76 @@ class Recipe
     }
 
     /**
-     * @return ArrayCollection
+     * @return Collection
      */
-    public function getIngredients(): ArrayCollection
+    public function getIngredients(): Collection
     {
         return $this->ingredients;
     }
 
     /**
-     * @param ArrayCollection $ingredients
+     * @param Collection $ingredients
      * @return Recipe
      */
-    public function setIngredients(ArrayCollection $ingredients): Recipe
+    public function setIngredients(Collection $ingredients): Recipe
     {
         $this->ingredients = $ingredients;
         return $this;
     }
 
     /**
-     * @return ArrayCollection
+     * @param Ingredient $ingredient
      */
-    public function getTags(): ArrayCollection
+    public function addIngredient(Ingredient $ingredient)
+    {
+        $ingredient->setRecipe($this);
+        $this->ingredients->add($ingredient);
+    }
+
+    /**
+     * @param Ingredient $ingredient
+     */
+    public function removeIngredient(Ingredient $ingredient)
+    {
+        $ingredient->setRecipe(null);
+        $this->ingredients->removeElement($ingredient);
+    }
+
+
+    /**
+     * @return Collection
+     */
+    public function getTags(): Collection
     {
         return $this->tags;
     }
 
     /**
-     * @param ArrayCollection $tags
+     * @param Collection $tags
      * @return Recipe
      */
-    public function setTags(ArrayCollection $tags): Recipe
+    public function setTags(Collection $tags): Recipe
     {
         $this->tags = $tags;
         return $this;
+    }
+
+    /**
+     * @param Tag $tag
+     */
+    public function addTag(Tag $tag)
+    {
+        $tag->setRecipe($this);
+        $this->tags->add($tag);
+    }
+
+    /**
+     * @param Tag $tag
+     */
+    public function removeTag(Tag $tag)
+    {
+        $tag->setRecipe(null);
+        $this->tags->removeElement($tag);
     }
 
     /**
@@ -247,6 +331,90 @@ class Recipe
     public function setAuthor(?Author $author): Recipe
     {
         $this->author = $author;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isArchived(): bool
+    {
+        return $this->archived;
+    }
+
+    /**
+     * @param bool $archived
+     * @return Recipe
+     */
+    public function setArchived(bool $archived): Recipe
+    {
+        $this->archived = $archived;
+        return $this;
+    }
+
+    /**
+     * @return \DateTime|null
+     */
+    public function getCreatedAt(): ?\DateTime
+    {
+        return $this->createdAt;
+    }
+
+    /**
+     * @param \DateTime|null $createdAt
+     * @return Recipe
+     */
+    public function setCreatedAt(?\DateTime $createdAt): Recipe
+    {
+        $this->createdAt = $createdAt;
+        return $this;
+    }
+
+    /**
+     * @return \DateTime|null
+     */
+    public function getUpdatedAt(): ?\DateTime
+    {
+        return $this->updatedAt;
+    }
+
+    /**
+     * @param \DateTime|null $updatedAt
+     * @return Recipe
+     */
+    public function setUpdatedAt(?\DateTime $updatedAt): Recipe
+    {
+        $this->updatedAt = $updatedAt;
+        return $this;
+    }
+
+    /**
+     * @return Image|null
+     */
+    public function getImage(): ?Image
+    {
+        return $this->image;
+    }
+
+    /**
+     * @param Image|null $image
+     * @return Recipe
+     */
+    public function setImage(?Image $image): Recipe
+    {
+        $this->image = $image;
+        return $this;
+    }
+
+    public function getDeletedAt(): ?\DateTimeInterface
+    {
+        return $this->deletedAt;
+    }
+
+    public function setDeletedAt(?\DateTimeInterface $deletedAt): self
+    {
+        $this->deletedAt = $deletedAt;
+
         return $this;
     }
 }

@@ -22,22 +22,26 @@ class RecipeRepository extends ServiceEntityRepository
         parent::__construct($registry, Recipe::class);
     }
 
-    public function add(Recipe $entity, bool $flush = false): void
+    /**
+     * @param Recipe $entity
+     * @return Recipe
+     */
+    public function save(Recipe $entity): Recipe
     {
         $this->getEntityManager()->persist($entity);
+        $this->getEntityManager()->flush();
 
-        if ($flush) {
-            $this->getEntityManager()->flush();
-        }
+        return $entity;
     }
 
-    public function remove(Recipe $entity, bool $flush = false): void
+    /**
+     * @param Recipe $entity
+     * @return void
+     */
+    public function delete(Recipe $entity): void
     {
         $this->getEntityManager()->remove($entity);
-
-        if ($flush) {
-            $this->getEntityManager()->flush();
-        }
+        $this->getEntityManager()->flush();
     }
 
 //    /**

@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\TagRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=TagRepository::class)
@@ -14,23 +15,27 @@ class Tag
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups({"list"})
      */
     private int $id;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups({"list"})
      */
     private ?string $name;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups({"list"})
      */
     private ?string $color;
 
     /**
      * @ORM\ManyToOne(targetEntity=Recipe::class, inversedBy="tags")
+     * @Groups({"tag_serialization"})
      */
-    private Recipe $recipe;
+    private ?Recipe $recipe;
 
     /**
      * @return int|null
@@ -89,16 +94,16 @@ class Tag
     /**
      * @return Recipe|null
      */
-    public function getRecipe(): Recipe
+    public function getRecipe(): ?Recipe
     {
         return $this->recipe;
     }
 
     /**
-     * @param Recipe $recipe
+     * @param Recipe|null $recipe
      * @return $this
      */
-    public function setRecipe(Recipe $recipe): self
+    public function setRecipe(?Recipe $recipe): self
     {
         $this->recipe = $recipe;
         return $this;
