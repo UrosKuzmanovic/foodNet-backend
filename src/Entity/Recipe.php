@@ -109,7 +109,7 @@ class Recipe
     /**
      * @ORM\Column(type="datetime", nullable=true)
      */
-    private $deletedAt;
+    private ?\DateTime $deletedAt = null;
 
     public function __construct()
     {
@@ -406,15 +406,21 @@ class Recipe
         return $this;
     }
 
-    public function getDeletedAt(): ?\DateTimeInterface
+    /**
+     * @return \DateTime|null
+     */
+    public function getDeletedAt(): ?\DateTime
     {
         return $this->deletedAt;
     }
 
-    public function setDeletedAt(?\DateTimeInterface $deletedAt): self
+    /**
+     * @param \DateTime|null $deletedAt
+     * @return Recipe
+     */
+    public function setDeletedAt(?\DateTime $deletedAt): Recipe
     {
         $this->deletedAt = $deletedAt;
-
         return $this;
     }
 }

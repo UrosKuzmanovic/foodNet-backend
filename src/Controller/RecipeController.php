@@ -85,7 +85,7 @@ class RecipeController extends AbstractController
         $recipe = $this->serializer->deserialize($request->getContent(), Recipe::class, 'json');
 
         if ($recipe->getId()) {
-            if (count($this->validator->validate($recipe)) > 0) {
+            if (count($this->validator->validate($recipe)) > 0 || !$recipeDB = $this->manager->update($recipe)) {
                 return $this->json([
                     'status' => Response::HTTP_BAD_REQUEST,
                     'message' => 'Recipe not valid',
@@ -94,9 +94,9 @@ class RecipeController extends AbstractController
 
             return $this->json([
                 'status' => Response::HTTP_OK,
-                'message' => 'Recipe saved!',
-                'recipe' => $this->manager->update($recipe),
-            ]);
+                'message' => 'Recipe updated!',
+                'recipe' => $recipeDB,
+            ], Response::HTTP_OK, [], ['groups' => ['list', 'recipe_serialization']]);
         }
 
         return $this->json([

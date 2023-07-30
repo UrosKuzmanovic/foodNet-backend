@@ -34,7 +34,7 @@ class RecipeManager
     {
         return $this->repository->findBy([
             'archived' => false,
-            'deletedAt' => false
+            'deletedAt' => null
         ]);
     }
 
@@ -81,9 +81,13 @@ class RecipeManager
     public function update(Recipe $recipe): Recipe
     {
         $recipeDB = $this->updateService->updateEntity($recipe);
-        $recipeDB->setUpdatedAt(new \DateTime());
+        if ($recipeDB) {
+            $recipeDB->setUpdatedAt(new \DateTime());
 
-        return $this->save($recipeDB);
+            return $this->save($recipeDB);
+        }
+
+        return new Recipe();
     }
 
 }
