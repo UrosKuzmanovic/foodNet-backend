@@ -17,7 +17,7 @@ class Tag
      * @ORM\Column(type="integer")
      * @Groups({"list"})
      */
-    private int $id;
+    private ?int $id = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)

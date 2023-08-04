@@ -34,9 +34,19 @@ class UpdateService
                 $setter = 'set' . ucfirst($propertyName);
                 $value = null;
                 if (method_exists($entity, $getter)) {
-                    $value = $this->getSpecialValue($propertyName, $entity->$getter(), $entityDB->$getter()) ?? $entity->$getter();
+                    $value = $this->getSpecialValue(
+                        $propertyName,
+                        $entity->$getter(),
+                        $entityDB->$getter(),
+                        $entityDB
+                    ) ?? $entity->$getter();
                 } else if (method_exists($entity, $isser)) {
-                    $value = $this->getSpecialValue($propertyName, $entity->$isser(), $entityDB->$isser()) ?? $entity->$isser();
+                    $value = $this->getSpecialValue(
+                        $propertyName,
+                        $entity->$isser(),
+                        $entityDB->$isser(),
+                        $entityDB
+                    ) ?? $entity->$isser();
                 }
                 $entityDB->$setter($value);
             }
@@ -47,38 +57,38 @@ class UpdateService
         }
     }
 
-    private function getSpecialValue(string $propertyName, $newValue, $dbValue)
+    private function getSpecialValue(string $propertyName, $newValue, $dbValue, $entityDB)
     {
         switch ($propertyName) {
             case 'tags':
                 $value = new ArrayCollection();
-                /** @var Tag $data */
-                foreach ($newValue as $data) {
-                    if ($data->getId()) {
-                        $oldValue = array_filter($dbValue->toArray(), (function ($value) use ($data) {
-                            return $value->getId() === $data->getId();
+                /** @var Tag $tag */
+                foreach ($newValue as $tag) {
+                    if ($tag->getId()) {
+                        $oldValue = array_filter($dbValue->toArray(), (function ($value) use ($tag) {
+                            return $value->getId() === $tag->getId();
                         }));
                         count($oldValue) > 0 && $oldValue = array_pop($oldValue);
                         /** @var Tag $oldValue */
-                        $value[] = $oldValue->setName($data->getName())->setColor($data->getColor());
+                        $value[] = $oldValue->setName($tag->getName())->setColor($tag->getColor());
                     } else {
-                        $value[] = $data;
+                        $value[] = $tag->setRecipe($entityDB);
                     }
                 }
                 return $value;
             case 'ingredients':
                 $value = new ArrayCollection();
-                /** @var Ingredient $data */
-                foreach ($newValue as $data) {
-                    if ($data->getId()) {
-                        $oldValue = array_filter($dbValue->toArray(), (function ($value) use ($data) {
-                            return $value->getId() === $data->getId();
+                /** @var Ingredient $ingredient */
+                foreach ($newValue as $ingredient) {
+                    if ($ingredient->getId()) {
+                        $oldValue = array_filter($dbValue->toArray(), (function ($value) use ($ingredient) {
+                            return $value->getId() === $ingredient->getId();
                         }));
                         count($oldValue) > 0 && $oldValue = array_pop($oldValue);
                         /** @var Ingredient $oldValue */
-                        $value[] = $oldValue->setName($data->getName())->setQuantity($data->getQuantity());
+                        $value[] = $oldValue->setName($ingredient->getName())->setQuantity($ingredient->getQuantity());
                     } else {
-                        $value[] = $data;
+                        $value[] = $ingredient->setRecipe($entityDB);
                     }
                 }
                 return $value;

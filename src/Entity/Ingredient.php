@@ -17,7 +17,7 @@ class Ingredient
      * @ORM\Column(type="integer")
      * @Groups({"list"})
      */
-    private int $id;
+    private ?int $id = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
@@ -38,18 +38,18 @@ class Ingredient
     private ?Recipe $recipe;
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;
     }
 
     /**
-     * @param int $id
+     * @param int|null $id
      * @return Ingredient
      */
-    public function setId(int $id): Ingredient
+    public function setId(?int $id): Ingredient
     {
         $this->id = $id;
         return $this;
