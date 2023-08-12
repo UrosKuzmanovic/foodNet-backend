@@ -4,6 +4,7 @@ namespace App\Manager;
 
 use App\Entity\Recipe;
 use App\Repository\RecipeRepository;
+use App\Service\Microservices\AuthenticatorService;
 use App\Service\UpdateService;
 
 class RecipeManager
@@ -12,11 +13,17 @@ class RecipeManager
     /** @var RecipeRepository */
     private RecipeRepository $repository;
     private UpdateService $updateService;
+    private AuthenticatorService $authenticatorService;
 
-    public function __construct(RecipeRepository $repository, UpdateService $updateService)
+    public function __construct(
+        RecipeRepository $repository,
+        UpdateService $updateService,
+        AuthenticatorService $authenticatorService
+    )
     {
         $this->repository = $repository;
         $this->updateService = $updateService;
+        $this->authenticatorService = $authenticatorService;
     }
 
     /**
@@ -55,6 +62,9 @@ class RecipeManager
      */
     public function save(Recipe $recipe): Recipe
     {
+        if (!$recipe->getAuthor()) {
+            $recipe->setAuthor($this->authenticatorService->getAuthor());
+        }
         return $this->repository->save($recipe);
     }
 

@@ -2,12 +2,14 @@
 
 namespace App\Entity;
 
-use App\Repository\TagRepository;
+use App\Repository\AuthorRepository;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
- * @ORM\Entity(repositoryClass=TagRepository::class)
+ * @ORM\Entity(repositoryClass=AuthorRepository::class)
  */
 class Author
 {
@@ -15,38 +17,46 @@ class Author
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups({"list"})
      */
     private int $id;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups({"list"})
      */
     private ?string $username;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups({"list"})
      */
     private ?string $email;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups({"list"})
      */
     private ?string $firstName;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups({"list"})
      */
     private ?string $lastName;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
+     * @Groups({"list"})
      */
     private ?int $userId;
 
     /**
+     * @var Recipe[]|Collection
      * @ORM\OneToMany(targetEntity=Recipe::class, mappedBy="author")
+     * @Groups({"author_serialization"})
      */
-    private ArrayCollection $recipes;
+    private Collection $recipes;
 
     public function __construct()
     {
@@ -162,20 +172,39 @@ class Author
     }
 
     /**
-     * @return ArrayCollection
+     * @return Collection
      */
-    public function getRecipes(): ArrayCollection
+    public function getRecipes(): Collection
     {
         return $this->recipes;
     }
 
     /**
-     * @param ArrayCollection $recipes
+     * @param Collection $recipes
      * @return Author
      */
-    public function setRecipes(ArrayCollection $recipes): Author
+    public function setRecipes(Collection $recipes): Author
     {
         $this->recipes = $recipes;
         return $this;
     }
+
+    /**
+     * @param Recipe $recipe
+     */
+    public function addRecipe(Recipe $recipe)
+    {
+        $this->recipes->add($recipe);
+        $recipe->setAuthor($this);
+    }
+
+    /**
+     * @param Recipe $recipe
+     */
+    public function removeRecipe(Recipe $recipe)
+    {
+        $this->recipes->removeElement($recipe);
+        $recipe->setAuthor(null);
+    }
+
 }

@@ -21,46 +21,27 @@ class AuthorRepository extends ServiceEntityRepository
         parent::__construct($registry, Author::class);
     }
 
-    public function add(Author $entity, bool $flush = false): void
+    /**
+     * @param Author $author
+     * @return Author
+     */
+    public function save(Author $author): Author
     {
-        $this->getEntityManager()->persist($entity);
+        $this->getEntityManager()->persist($author);
+        $this->getEntityManager()->flush();
 
-        if ($flush) {
-            $this->getEntityManager()->flush();
-        }
+        return $author;
     }
 
-    public function remove(Author $entity, bool $flush = false): void
+    /**
+     * @param Author $author
+     * @return int
+     */
+    public function remove(Author $author): int
     {
-        $this->getEntityManager()->remove($entity);
+        $this->getEntityManager()->remove($author);
+        $this->getEntityManager()->flush();
 
-        if ($flush) {
-            $this->getEntityManager()->flush();
-        }
+        return $author->getId();
     }
-
-//    /**
-//     * @return Author[] Returns an array of Author objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('t')
-//            ->andWhere('t.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('t.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
-
-//    public function findOneBySomeField($value): ?Author
-//    {
-//        return $this->createQueryBuilder('t')
-//            ->andWhere('t.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
 }

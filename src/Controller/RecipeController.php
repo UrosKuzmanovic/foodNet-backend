@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Recipe;
 use App\Manager\RecipeManager;
 use App\Service\ImageService;
+use App\Service\Microservices\AuthenticatorService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,19 +20,21 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class RecipeController extends AbstractController
 {
 
-    /** @var RecipeManager */
+    private AuthenticatorService $authService;
     private RecipeManager $manager;
     private ImageService $imageService;
     private SerializerInterface $serializer;
     private ValidatorInterface $validator;
 
     public function __construct(
-        RecipeManager       $manager,
-        ImageService        $imageService,
-        SerializerInterface $serializer,
-        ValidatorInterface  $validator
+        AuthenticatorService $authService,
+        RecipeManager        $manager,
+        ImageService         $imageService,
+        SerializerInterface  $serializer,
+        ValidatorInterface   $validator
     )
     {
+        $this->authService = $authService;
         $this->manager = $manager;
         $this->imageService = $imageService;
         $this->serializer = $serializer;
