@@ -69,4 +69,13 @@ class AuthorManager
         return $this->repository->findOneBy(['userId' => $user->getId()]);
     }
 
+    /**
+     * @param Author $author
+     * @return int
+     */
+    public function getRecipesCountForAuthor(Author $author): int
+    {
+        return $this->repository->getRecipesCountForAuthor($author);
+    }
+
 }

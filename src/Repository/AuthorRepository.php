@@ -44,4 +44,30 @@ class AuthorRepository extends ServiceEntityRepository
 
         return $author->getId();
     }
+
+    /**
+     * @param Author $author
+     * @return int
+     */
+    public function getRecipesCountForAuthor(Author $author): int
+    {
+        $sql = '
+            select r.id
+            from author a
+            inner join recipe r on a.id = r.author_id
+            where a.id = :id
+                and r.archived = 0
+                and r.deleted_at is null;
+        ';
+
+        try {
+            $stmt = $this->_em
+                ->getConnection()
+                ->prepare($sql);
+            $stmt->bindValue('id', $author->getId());
+            return $stmt->executeQuery()->rowCount();
+        } catch (\Throwable $e) {
+            return 0;
+        }
+    }
 }

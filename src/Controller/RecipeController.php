@@ -42,13 +42,15 @@ class RecipeController extends AbstractController
     }
 
     /**
-     * @Route("/all", methods={"GET"}, name="get_all_recipes")
+     * @Route("/list", methods={"POST"}, name="get_all_recipes")
      */
-    public function feed(): JsonResponse
+    public function list(Request $request): JsonResponse
     {
+        $parameters = json_decode($request->getContent());
+
         return $this->json([
             'status' => Response::HTTP_OK,
-            'items' => $this->manager->findForFeed(),
+            'items' => $this->manager->findForFeed($parameters),
         ], Response::HTTP_OK, [], ['groups' => ['list', 'recipe_serialization']]);
     }
 

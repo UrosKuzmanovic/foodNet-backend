@@ -51,16 +51,16 @@ class Author
      */
     private ?int $userId;
 
-    /**
-     * @var Recipe[]|Collection
-     * @ORM\OneToMany(targetEntity=Recipe::class, mappedBy="author")
-     * @Groups({"author_serialization"})
-     */
-    private Collection $recipes;
+//    /**
+//     * @var Recipe[]|Collection
+//     * @ORM\OneToMany(targetEntity=Recipe::class, mappedBy="author")
+//     * @Groups({"author_serialization"})
+//     */
+//    private Collection $recipes;
 
     public function __construct()
     {
-        $this->recipes = new ArrayCollection();
+//        $this->recipes = new ArrayCollection();
     }
 
     /**
@@ -170,41 +170,41 @@ class Author
         $this->userId = $userId;
         return $this;
     }
-
-    /**
-     * @return Collection
-     */
-    public function getRecipes(): Collection
-    {
-        return $this->recipes;
-    }
-
-    /**
-     * @param Collection $recipes
-     * @return Author
-     */
-    public function setRecipes(Collection $recipes): Author
-    {
-        $this->recipes = $recipes;
-        return $this;
-    }
-
-    /**
-     * @param Recipe $recipe
-     */
-    public function addRecipe(Recipe $recipe)
-    {
-        $this->recipes->add($recipe);
-        $recipe->setAuthor($this);
-    }
-
-    /**
-     * @param Recipe $recipe
-     */
-    public function removeRecipe(Recipe $recipe)
-    {
-        $this->recipes->removeElement($recipe);
-        $recipe->setAuthor(null);
-    }
+//
+//    /**
+//     * @return Collection
+//     */
+//    public function getRecipes(): Collection
+//    {
+//        return $this->recipes;
+//    }
+//
+//    /**
+//     * @param Collection $recipes
+//     * @return Author
+//     */
+//    public function setRecipes(Collection $recipes): Author
+//    {
+//        $this->recipes = $recipes;
+//        return $this;
+//    }
+//
+//    /**
+//     * @param Recipe $recipe
+//     */
+//    public function addRecipe(Recipe $recipe)
+//    {
+//        $this->recipes->add($recipe);
+//        $recipe->setAuthor($this);
+//    }
+//
+//    /**
+//     * @param Recipe $recipe
+//     */
+//    public function removeRecipe(Recipe $recipe)
+//    {
+//        $this->recipes->removeElement($recipe);
+//        $recipe->setAuthor(null);
+//    }
 
 }

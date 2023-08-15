@@ -99,7 +99,7 @@ class AuthenticatorService
             return $this->serializer->deserialize($data, AuthenticatorHttpDto::class, 'json');
         } catch (\Exception|GuzzleException $e) {
             return (new AuthenticatorHttpDto())
-                ->setStatus(Response::HTTP_INTERNAL_SERVER_ERROR)
+                ->setStatus($e->getCode())
                 ->setMessage($e->getMessage());
         }
     }
@@ -115,6 +115,8 @@ class AuthenticatorService
             'base_uri' => self::BASE_URI
         ]);
 
+        $response = null;
+
         try {
             $response = $client->post(self::API . $path, [
                 'headers' => [
@@ -128,7 +130,7 @@ class AuthenticatorService
             return $this->serializer->deserialize($data, AuthenticatorHttpDto::class, 'json');
         } catch (\Exception|GuzzleException $e) {
             return (new AuthenticatorHttpDto())
-                ->setStatus(Response::HTTP_INTERNAL_SERVER_ERROR)
+                ->setStatus($e->getCode())
                 ->setMessage($e->getMessage());
         }
     }

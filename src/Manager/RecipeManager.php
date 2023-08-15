@@ -37,12 +37,22 @@ class RecipeManager
     /**
      * @return Recipe[]
      */
-    public function findForFeed(): array
+    public function findForFeed($parameters): array
     {
-        return $this->repository->findBy([
+        $parametersArray = [
             'archived' => false,
             'deletedAt' => null
-        ]);
+        ];
+
+        if (isset($parameters->authorId) && $parameters->authorId) {
+            $parametersArray['author'] = $parameters->authorId;
+        }
+
+        if (isset($parameters->archived) && $parameters->archived) {
+            $parametersArray['archived'] = $parameters->archived;
+        }
+
+        return $this->repository->findBy($parametersArray);
     }
 
     /**
