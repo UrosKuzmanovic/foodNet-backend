@@ -26,4 +26,34 @@ class AuthorController extends AbstractController
     {
         $this->manager = $manager;
     }
+
+    /**
+     * @Route("/{id}", name="get_author")
+     */
+    public function googleLogin(Request $request): JsonResponse
+    {
+        $id = intval($request->get('id'));
+
+        $authorDB = $this->manager->findOneBy(['id' => $id]);
+
+        if(!$authorDB) {
+            return $this->json(
+                [
+                    'status' => Response::HTTP_NOT_FOUND,
+                    'message' => 'Author not found',
+                ]
+            );
+        }
+
+        $metadata['count'] = $this->manager->getRecipesCountForAuthor($authorDB);
+
+        return $this->json(
+            [
+                'status' => Response::HTTP_OK,
+                'message' => 'Author',
+                'author' => $authorDB,
+                'metadata' => $metadata,
+            ]
+        );
+    }
 }

@@ -114,17 +114,15 @@ class AuthController extends AbstractController
             $userDto = $authHttpDto->getUser();
 
             if (!$authorDB = $this->authorManager->findOneBy(['userId' => $userDto->getId()])) {
-                $authorDB = new Author();
+                $authorDB = (new Author())
+                    ->setEmail($userDto->getEmail())
+                    ->setUsername($userDto->getUsername())
+                    ->setFirstName($userDto->getFirstName())
+                    ->setLastName($userDto->getLastName())
+                    ->setUserId($userDto->getId());
+
+                $authorDB = $this->authorManager->save($authorDB);
             }
-
-            $authorDB
-                ->setEmail($userDto->getEmail())
-                ->setUsername($userDto->getUsername())
-                ->setFirstName($userDto->getFirstName())
-                ->setLastName($userDto->getLastName())
-                ->setUserId($userDto->getId());
-
-            $authorDB = $this->authorManager->save($authorDB);
 
             return $this->json(
                 [
