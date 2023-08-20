@@ -30,7 +30,7 @@ class AuthorController extends AbstractController
     /**
      * @Route("/{id}", name="get_author")
      */
-    public function googleLogin(Request $request): JsonResponse
+    public function getAuthor(Request $request): JsonResponse
     {
         $id = intval($request->get('id'));
 

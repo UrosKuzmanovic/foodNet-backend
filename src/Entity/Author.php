@@ -46,7 +46,7 @@ class Author
     private ?string $lastName;
 
     /**
-     * @ORM\Column(type="integer", nullable=true)
+     * @ORM\Column(type="integer", nullable=true, unique=true)
      * @Groups({"list"})
      */
     private ?int $userId;

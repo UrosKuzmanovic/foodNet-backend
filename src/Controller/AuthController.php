@@ -3,7 +3,10 @@
 namespace App\Controller;
 
 use App\Entity\Author;
+use App\Entity\Dto\AnalyticsDto;
+use App\EventListener\Events\SendAnalyticsEvent;
 use App\Manager\AuthorManager;
+use App\Service\Microservices\AnalyticsService;
 use App\Service\Microservices\AuthenticatorService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -11,6 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @Route("/api/foodnet/auth")
@@ -20,14 +24,17 @@ class AuthController extends AbstractController
 
     private AuthorManager $authorManager;
     private AuthenticatorService $authenticatorService;
+    private AnalyticsService $analyticsService;
 
     public function __construct(
         AuthorManager        $authorManager,
-        AuthenticatorService $authenticatorService
+        AuthenticatorService $authenticatorService,
+        AnalyticsService     $analyticsService
     )
     {
         $this->authorManager = $authorManager;
         $this->authenticatorService = $authenticatorService;
+        $this->analyticsService = $analyticsService;
     }
 
     /**
@@ -39,6 +46,13 @@ class AuthController extends AbstractController
 
         if ($httpDto->getStatus() === Response::HTTP_OK && $user = $httpDto->getUser()) {
             $authorDB = $this->authorManager->registerAuthor($user);
+
+            $this->analyticsService->sendAnalytics(
+                'Signup',
+                'User Registration',
+                Author::class,
+                $authorDB->getId()
+            );
 
             return $this->json([
                 'status' => $httpDto->getStatus(),
@@ -68,6 +82,13 @@ class AuthController extends AbstractController
 
         if ($httpDto->getStatus() === Response::HTTP_OK && $user = $httpDto->getUser()) {
             $authorDB = $this->authorManager->getByUser($user);
+
+            $this->analyticsService->sendAnalytics(
+                'Login',
+                'User Login',
+                Author::class,
+                $authorDB->getId()
+            );
 
             return $this->json(
                 [
@@ -124,6 +145,13 @@ class AuthController extends AbstractController
                 $authorDB = $this->authorManager->save($authorDB);
             }
 
+            $this->analyticsService->sendAnalytics(
+                'Login',
+                'User Google Login',
+                Author::class,
+                $authorDB->getId()
+            );
+
             return $this->json(
                 [
                     'status' => Response::HTTP_OK,
@@ -179,6 +207,13 @@ class AuthController extends AbstractController
         $httpDto = $this->authenticatorService->get('logout');
 
         if ($httpDto->getStatus() === Response::HTTP_OK) {
+            $this->analyticsService->sendAnalytics(
+                'Logout',
+                'User Logout',
+                Author::class,
+                $this->authenticatorService->getAuthor()->getId()
+            );
+
             return $this->json([
                 'status' => $httpDto->getStatus(),
                 'message' => 'Author logged out!',

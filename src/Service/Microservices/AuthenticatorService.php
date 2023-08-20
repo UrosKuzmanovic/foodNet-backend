@@ -35,18 +35,18 @@ class AuthenticatorService
     }
 
     /**
-     * @return UserDto
+     * @return ?UserDto
      */
-    public function getUser(): UserDto
+    public function getUser(): ?UserDto
     {
         return $this->session->get('_user');
     }
 
     /**
-     * @param UserDto $user
+     * @param ?UserDto $user
      * @return void
      */
-    public function setUser(UserDto $user): void
+    public function setUser(?UserDto $user): void
     {
         $this->session->set('_user', $user);
     }
@@ -56,7 +56,10 @@ class AuthenticatorService
      */
     public function getAuthor(): ?Author
     {
-        $userDto = $this->getUser();
+        if (!$userDto = $this->getUser()) {
+            return null;
+        }
+
         return $this->authorManager->findOneBy(['userId' => $userDto->getId()]);
     }
 

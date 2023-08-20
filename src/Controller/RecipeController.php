@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Recipe;
 use App\Manager\RecipeManager;
 use App\Service\ImageService;
+use App\Service\Microservices\AnalyticsService;
 use App\Service\Microservices\AuthenticatorService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -23,6 +24,7 @@ class RecipeController extends AbstractController
     private AuthenticatorService $authService;
     private RecipeManager $manager;
     private ImageService $imageService;
+    private AnalyticsService $analyticsService;
     private SerializerInterface $serializer;
     private ValidatorInterface $validator;
 
@@ -30,6 +32,7 @@ class RecipeController extends AbstractController
         AuthenticatorService $authService,
         RecipeManager        $manager,
         ImageService         $imageService,
+        AnalyticsService     $analyticsService,
         SerializerInterface  $serializer,
         ValidatorInterface   $validator
     )
@@ -37,6 +40,7 @@ class RecipeController extends AbstractController
         $this->authService = $authService;
         $this->manager = $manager;
         $this->imageService = $imageService;
+        $this->analyticsService = $analyticsService;
         $this->serializer = $serializer;
         $this->validator = $validator;
     }
@@ -74,6 +78,13 @@ class RecipeController extends AbstractController
             ], Response::HTTP_BAD_REQUEST);
         }
 
+        $this->analyticsService->sendAnalytics(
+            'Create',
+            'Add Recipe',
+            Recipe::class,
+            $recipe->getId()
+        );
+
         return $this->json([
             'status' => Response::HTTP_OK,
             'message' => 'Recipe saved!',
@@ -97,6 +108,13 @@ class RecipeController extends AbstractController
                 ], Response::HTTP_BAD_REQUEST);
             }
 
+            $this->analyticsService->sendAnalytics(
+                'Edit',
+                'Edit Recipe',
+                Recipe::class,
+                $recipe->getId()
+            );
+
             return $this->json([
                 'status' => Response::HTTP_OK,
                 'message' => 'Recipe updated!',
@@ -115,6 +133,13 @@ class RecipeController extends AbstractController
      */
     public function deleteRecipe(int $id): JsonResponse
     {
+        $this->analyticsService->sendAnalytics(
+            'Delete',
+            'Delete Recipe',
+            Recipe::class,
+            $id
+        );
+
         return $this->json([
             'id' => $this->manager->delete($id)
         ], Response::HTTP_OK
