@@ -4,10 +4,12 @@ namespace App\Controller;
 
 use App\Entity\Author;
 use App\Entity\Dto\AnalyticsDto;
+use App\Entity\Dto\SmsSentDto;
 use App\EventListener\Events\SendAnalyticsEvent;
 use App\Manager\AuthorManager;
 use App\Service\Microservices\AnalyticsService;
 use App\Service\Microservices\AuthenticatorService;
+use App\Service\Microservices\SmsService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,16 +26,19 @@ class AuthController extends AbstractController
 
     private AuthorManager $authorManager;
     private AuthenticatorService $authenticatorService;
+    private SmsService $smsService;
     private AnalyticsService $analyticsService;
 
     public function __construct(
         AuthorManager        $authorManager,
         AuthenticatorService $authenticatorService,
+        SmsService $smsService,
         AnalyticsService     $analyticsService
     )
     {
         $this->authorManager = $authorManager;
         $this->authenticatorService = $authenticatorService;
+        $this->smsService = $smsService;
         $this->analyticsService = $analyticsService;
     }
 
@@ -42,7 +47,10 @@ class AuthController extends AbstractController
      */
     public function register(Request $request): JsonResponse
     {
-        $httpDto = $this->authenticatorService->post('register', $request->getContent());
+        $data = json_decode($request->getContent());
+        $data->enabled = false;
+
+        $httpDto = $this->authenticatorService->post('register', json_encode($data));
 
         if ($httpDto->getStatus() === Response::HTTP_OK && $user = $httpDto->getUser()) {
             $authorDB = $this->authorManager->registerAuthor($user);
@@ -54,13 +62,59 @@ class AuthController extends AbstractController
                 $authorDB->getId()
             );
 
+            // TODO enable sms
+//            $this->smsService->post(
+//                (new SmsSentDto())
+//                    ->setToNumber('')
+//                    ->setText('Your confirmation code is ' . $user->getConfirmationCode())
+//            );
+
             return $this->json([
                 'status' => $httpDto->getStatus(),
-                'message' => 'Author registered',
+                'message' => 'Confirmation required',
                 'author' => $authorDB,
             ],
                 $httpDto->getStatus(),
-                [AbstractNormalizer::GROUPS => ['view']]
+                [],
+                [AbstractNormalizer::GROUPS => ['list']]
+            );
+        } else {
+            return $this->json(
+                array(
+                    'status' => $httpDto->getStatus(),
+                    'message' => $httpDto->getMessage()
+                ),
+                $httpDto->getStatus()
+            );
+        }
+    }
+
+    /**
+     * @Route("/confirm", name="confirm_author")
+     */
+    public function confirm(Request $request): JsonResponse
+    {
+        $httpDto = $this->authenticatorService->post('confirm', $request->getContent());
+
+        if ($httpDto->getStatus() === Response::HTTP_OK && $user = $httpDto->getUser()) {
+            $authorDB = $this->authorManager->enableAuthor($user);
+
+            $this->analyticsService->sendAnalytics(
+                'Signup',
+                'User Enabled',
+                Author::class,
+                $authorDB->getId()
+            );
+
+            return $this->json([
+                'status' => $httpDto->getStatus(),
+                'message' => 'Confirmation required',
+                'author' => $authorDB,
+                'token' => $httpDto->getToken()
+            ],
+                $httpDto->getStatus(),
+                [],
+                [AbstractNormalizer::GROUPS => ['list']]
             );
         } else {
             return $this->json(
@@ -80,7 +134,7 @@ class AuthController extends AbstractController
     {
         $httpDto = $this->authenticatorService->post('login', $request->getContent());
 
-        if ($httpDto->getStatus() === Response::HTTP_OK && $user = $httpDto->getUser()) {
+        if ($httpDto->getStatus() === Response::HTTP_OK && ($user = $httpDto->getUser())) {
             $authorDB = $this->authorManager->getByUser($user);
 
             $this->analyticsService->sendAnalytics(

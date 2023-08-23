@@ -55,9 +55,27 @@ class AuthorManager
             ->setEmail($user->getEmail())
             ->setFirstName($user->getFirstName())
             ->setLastName($user->getLastName())
-            ->setUserId($user->getId());
+            ->setUserId($user->getId())
+            ->setEnabled(false);
 
         return $this->save($author);
+    }
+
+    /**
+     * @param UserDto $user
+     * @return Author
+     */
+    public function enableAuthor(UserDto $user): Author
+    {
+        $authorDB = $this->findOneBy(['email' => $user->getEmail()]);
+
+        if ($authorDB) {
+            $authorDB->setEnabled(true);
+
+            return $this->save($authorDB);
+        }
+
+        return new Author();
     }
 
     /**

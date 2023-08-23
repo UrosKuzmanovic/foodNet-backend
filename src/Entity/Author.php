@@ -58,6 +58,12 @@ class Author
 //     */
 //    private Collection $recipes;
 
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     * @Groups({"list"})
+     */
+    private bool $enabled = false;
+
     public function __construct()
     {
 //        $this->recipes = new ArrayCollection();
@@ -206,5 +212,23 @@ class Author
 //        $this->recipes->removeElement($recipe);
 //        $recipe->setAuthor(null);
 //    }
+
+    /**
+     * @return bool
+     */
+    public function isEnabled(): bool
+    {
+        return $this->enabled;
+    }
+
+    /**
+     * @param bool $enabled
+     * @return Author
+     */
+    public function setEnabled(bool $enabled): Author
+    {
+        $this->enabled = $enabled;
+        return $this;
+    }
 
 }

@@ -34,6 +34,8 @@ class UserDto
 
     private ?\DateTime $loggedAt = null;
 
+    private ?string $confirmationCode = null;
+
     /**
      * @return int|null
      */
@@ -301,6 +303,24 @@ class UserDto
     public function setLoggedAt(?\DateTime $loggedAt): UserDto
     {
         $this->loggedAt = $loggedAt;
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getConfirmationCode(): ?string
+    {
+        return $this->confirmationCode;
+    }
+
+    /**
+     * @param string|null $confirmationCode
+     * @return UserDto
+     */
+    public function setConfirmationCode(?string $confirmationCode): UserDto
+    {
+        $this->confirmationCode = $confirmationCode;
         return $this;
     }
 }

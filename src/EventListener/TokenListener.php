@@ -16,6 +16,7 @@ class TokenListener
     private const SKIP_URI_ARRAY = [
         '/api/foodnet/auth/login',
         '/api/foodnet/auth/register',
+        '/api/foodnet/auth/confirm',
         '/api/foodnet/auth/google-login',
         '/api/foodnet/auth/google-verify',
     ];
