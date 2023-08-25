@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Dto\Reviews\CommentDto;
+use App\Entity\Dto\Reviews\RatingDto;
 use App\Entity\Recipe;
 use App\Service\Microservices\AuthenticatorService;
 use App\Service\Microservices\ReviewsService;
@@ -82,5 +83,73 @@ class ReviewsController extends AbstractController
             'status' => Response::HTTP_INTERNAL_SERVER_ERROR,
             'message' => 'Error while fetching comments'
         ], Response::HTTP_INTERNAL_SERVER_ERROR);
+    }
+
+    /**
+     * @Route("/rating/add", name="add_rating")
+     */
+    public function addRating(Request $request): JsonResponse
+    {
+        $author = $this->authenticatorService->getAuthor();
+
+        /** @var RatingDto $rating */
+        $rating = $this->serializer->deserialize($request->getContent(), RatingDto::class, 'json');
+
+        $rating
+            ->setUserId($author->getId())
+            ->setEntity(Recipe::class);
+
+        $ratingHttpDto = $this->reviewsService->postRating($rating, 'add');
+
+        return $this->json([
+            'status' => $ratingHttpDto->getStatus(),
+            'message' => $ratingHttpDto->getMessage(),
+        ]);
+    }
+
+    /**
+     * @Route("/rating/get", name="get_rating")
+     */
+    public function getRating(Request $request): JsonResponse
+    {
+        $author = $this->authenticatorService->getAuthor();
+
+        /** @var RatingDto $rating */
+        $rating = $this->serializer->deserialize($request->getContent(), RatingDto::class, 'json');
+
+        $rating
+            ->setUserId($author->getId())
+            ->setEntity(Recipe::class);
+
+        $ratingHttpDto = $this->reviewsService->postRating($rating, 'get');
+
+        return $this->json([
+            'status' => $ratingHttpDto->getStatus(),
+            'message' => $ratingHttpDto->getMessage(),
+            'rating' => $ratingHttpDto->getRating(),
+        ]);
+    }
+
+    /**
+     * @Route("/rating/get-avg", name="get_avg_rating")
+     */
+    public function getAvgRating(Request $request): JsonResponse
+    {
+        $author = $this->authenticatorService->getAuthor();
+
+        /** @var RatingDto $rating */
+        $rating = $this->serializer->deserialize($request->getContent(), RatingDto::class, 'json');
+
+        $rating
+            ->setUserId($author->getId())
+            ->setEntity(Recipe::class);
+
+        $ratingHttpDto = $this->reviewsService->postRating($rating, 'get-avg');
+
+        return $this->json([
+            'status' => $ratingHttpDto->getStatus(),
+            'message' => $ratingHttpDto->getMessage(),
+            'rating' => $ratingHttpDto->getRating(),
+        ]);
     }
 }
