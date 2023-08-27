@@ -4,12 +4,14 @@ namespace App\Controller;
 
 use App\Entity\Author;
 use App\Entity\Dto\AnalyticsDto;
+use App\Entity\Dto\Email\EmailSentDto;
 use App\Entity\Dto\SmsSentDto;
 use App\EventListener\Events\SendAnalyticsEvent;
 use App\Manager\AuthorManager;
 use App\Service\ImageService;
 use App\Service\Microservices\AnalyticsService;
 use App\Service\Microservices\AuthenticatorService;
+use App\Service\Microservices\EmailService;
 use App\Service\Microservices\SmsService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -29,6 +31,7 @@ class AuthController extends AbstractController
     private AuthenticatorService $authenticatorService;
     private SmsService $smsService;
     private ImageService $imageService;
+    private EmailService $emailService;
     private AnalyticsService $analyticsService;
 
     public function __construct(
@@ -36,6 +39,7 @@ class AuthController extends AbstractController
         AuthenticatorService $authenticatorService,
         SmsService           $smsService,
         ImageService         $imageService,
+        EmailService         $emailService,
         AnalyticsService     $analyticsService
     )
     {
@@ -43,6 +47,7 @@ class AuthController extends AbstractController
         $this->authenticatorService = $authenticatorService;
         $this->smsService = $smsService;
         $this->imageService = $imageService;
+        $this->emailService = $emailService;
         $this->analyticsService = $analyticsService;
     }
 
@@ -106,6 +111,13 @@ class AuthController extends AbstractController
 
         if ($httpDto->getStatus() === Response::HTTP_OK && $user = $httpDto->getUser()) {
             $authorDB = $this->authorManager->enableAuthor($user);
+
+            $this->emailService->post(
+                (new EmailSentDto())
+                    ->setToEmail($authorDB->getEmail())
+                    ->setSubject('Registration successful')
+                    ->setText('Thank you for registering to foodNet!')
+            );
 
             $this->analyticsService->sendAnalytics(
                 'Signup',
@@ -206,6 +218,13 @@ class AuthController extends AbstractController
                     ->setUserId($userDto->getId());
 
                 $authorDB = $this->authorManager->save($authorDB);
+
+                $this->emailService->post(
+                    (new EmailSentDto())
+                        ->setToEmail($authorDB->getEmail())
+                        ->setSubject('Registration successful')
+                        ->setText('Thank you for registering to foodNet!')
+                );
             }
 
             $this->analyticsService->sendAnalytics(
