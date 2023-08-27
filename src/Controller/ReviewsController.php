@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Dto\Reviews\CommentDto;
 use App\Entity\Dto\Reviews\RatingDto;
 use App\Entity\Recipe;
+use App\Service\Microservices\AnalyticsService;
 use App\Service\Microservices\AuthenticatorService;
 use App\Service\Microservices\ReviewsService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -22,16 +23,19 @@ class ReviewsController extends AbstractController
 
     private ReviewsService $reviewsService;
     private AuthenticatorService $authenticatorService;
+    private AnalyticsService $analyticsService;
     private SerializerInterface $serializer;
 
     public function __construct(
         ReviewsService       $reviewsService,
         AuthenticatorService $authenticatorService,
+        AnalyticsService     $analyticsService,
         SerializerInterface  $serializer
     )
     {
         $this->reviewsService = $reviewsService;
         $this->authenticatorService = $authenticatorService;
+        $this->analyticsService = $analyticsService;
         $this->serializer = $serializer;
     }
 
@@ -52,6 +56,13 @@ class ReviewsController extends AbstractController
             ->setEntity(Recipe::class);
 
         $commentsDto = $this->reviewsService->postComment($comment, 'add');
+
+        $this->analyticsService->sendAnalytics(
+            'Comment',
+            'Recipe Comment',
+            Recipe::class,
+            $comment->getEntityId()
+        );
 
         return $this->json([
             'status' => $commentsDto->getStatus(),
@@ -100,6 +111,13 @@ class ReviewsController extends AbstractController
             ->setEntity(Recipe::class);
 
         $ratingHttpDto = $this->reviewsService->postRating($rating, 'add');
+
+        $this->analyticsService->sendAnalytics(
+            'Rating',
+            'Recipe Rating',
+            Recipe::class,
+            $rating->getEntityId()
+        );
 
         return $this->json([
             'status' => $ratingHttpDto->getStatus(),
