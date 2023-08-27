@@ -194,6 +194,7 @@ class AuthController extends AbstractController
                     ->setUsername($userDto->getUsername())
                     ->setFirstName($userDto->getFirstName())
                     ->setLastName($userDto->getLastName())
+                    ->setPictureUrl($userDto->getPictureUrl())
                     ->setUserId($userDto->getId());
 
                 $authorDB = $this->authorManager->save($authorDB);

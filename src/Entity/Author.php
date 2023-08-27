@@ -64,6 +64,11 @@ class Author
      */
     private bool $enabled = false;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $pictureUrl;
+
     public function __construct()
     {
 //        $this->recipes = new ArrayCollection();
@@ -228,6 +233,18 @@ class Author
     public function setEnabled(bool $enabled): Author
     {
         $this->enabled = $enabled;
+        return $this;
+    }
+
+    public function getPictureUrl(): ?string
+    {
+        return $this->pictureUrl;
+    }
+
+    public function setPictureUrl(?string $pictureUrl): self
+    {
+        $this->pictureUrl = $pictureUrl;
+
         return $this;
     }
 
