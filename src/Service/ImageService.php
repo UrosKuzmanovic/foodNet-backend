@@ -10,6 +10,8 @@ class ImageService
     private const UPLOAD_PATH = 'uploads/';
     private const IMAGE_PREFIX = 'foodnet_';
 
+    private const URL_PATH = 'https://localhost/api/foodnet/';
+
     /**
      * @param string $base64Image
      * @return Image
@@ -39,7 +41,7 @@ class ImageService
 
         return (new Image())
             ->setName($filename)
-            ->setPath($path)
+            ->setPath(self::URL_PATH . $path)
             ->setFileSize($fileSize)
             ->setUploadedAt(new \DateTime());
     }

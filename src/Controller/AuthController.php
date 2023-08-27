@@ -7,6 +7,7 @@ use App\Entity\Dto\AnalyticsDto;
 use App\Entity\Dto\SmsSentDto;
 use App\EventListener\Events\SendAnalyticsEvent;
 use App\Manager\AuthorManager;
+use App\Service\ImageService;
 use App\Service\Microservices\AnalyticsService;
 use App\Service\Microservices\AuthenticatorService;
 use App\Service\Microservices\SmsService;
@@ -27,18 +28,21 @@ class AuthController extends AbstractController
     private AuthorManager $authorManager;
     private AuthenticatorService $authenticatorService;
     private SmsService $smsService;
+    private ImageService $imageService;
     private AnalyticsService $analyticsService;
 
     public function __construct(
         AuthorManager        $authorManager,
         AuthenticatorService $authenticatorService,
-        SmsService $smsService,
+        SmsService           $smsService,
+        ImageService         $imageService,
         AnalyticsService     $analyticsService
     )
     {
         $this->authorManager = $authorManager;
         $this->authenticatorService = $authenticatorService;
         $this->smsService = $smsService;
+        $this->imageService = $imageService;
         $this->analyticsService = $analyticsService;
     }
 
@@ -50,9 +54,13 @@ class AuthController extends AbstractController
         $data = json_decode($request->getContent());
         $data->enabled = false;
 
+        $image = $this->imageService->saveImage($data->base64Image);
+        $data->pictureUrl = $image->getPath();
+
         $httpDto = $this->authenticatorService->post('register', json_encode($data));
 
         if ($httpDto->getStatus() === Response::HTTP_OK && $user = $httpDto->getUser()) {
+            $user->setImage($image);
             $authorDB = $this->authorManager->registerAuthor($user);
 
             $this->analyticsService->sendAnalytics(
@@ -65,7 +73,7 @@ class AuthController extends AbstractController
             // TODO enable sms
 //            $this->smsService->post(
 //                (new SmsSentDto())
-//                    ->setToNumber('')
+//                    ->setToNumber($data->phoneNumber)
 //                    ->setText('Your confirmation code is ' . $user->getConfirmationCode())
 //            );
 

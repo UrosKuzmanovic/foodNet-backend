@@ -2,6 +2,8 @@
 
 namespace App\Entity\Dto;
 
+use App\Entity\Image;
+
 class UserDto
 {
     private ?int $id = null;
@@ -35,6 +37,8 @@ class UserDto
     private ?\DateTime $loggedAt = null;
 
     private ?string $confirmationCode = null;
+
+    private ?Image $image = null;
 
     /**
      * @return int|null
@@ -321,6 +325,24 @@ class UserDto
     public function setConfirmationCode(?string $confirmationCode): UserDto
     {
         $this->confirmationCode = $confirmationCode;
+        return $this;
+    }
+
+    /**
+     * @return Image|null
+     */
+    public function getImage(): ?Image
+    {
+        return $this->image;
+    }
+
+    /**
+     * @param Image|null $image
+     * @return UserDto
+     */
+    public function setImage(?Image $image): UserDto
+    {
+        $this->image = $image;
         return $this;
     }
 }

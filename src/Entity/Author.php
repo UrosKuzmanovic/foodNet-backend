@@ -67,7 +67,17 @@ class Author
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $pictureUrl;
+    private ?string $pictureUrl;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private ?string $phoneNumber;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Image::class, cascade={"all"})
+     */
+    private ?Image $image;
 
     public function __construct()
     {
@@ -236,15 +246,57 @@ class Author
         return $this;
     }
 
+    /**
+     * @return string|null
+     */
     public function getPictureUrl(): ?string
     {
         return $this->pictureUrl;
     }
 
-    public function setPictureUrl(?string $pictureUrl): self
+    /**
+     * @param string|null $pictureUrl
+     * @return Author
+     */
+    public function setPictureUrl(?string $pictureUrl): Author
     {
         $this->pictureUrl = $pictureUrl;
+        return $this;
+    }
 
+    /**
+     * @return string|null
+     */
+    public function getPhoneNumber(): ?string
+    {
+        return $this->phoneNumber;
+    }
+
+    /**
+     * @param string|null $phoneNumber
+     * @return Author
+     */
+    public function setPhoneNumber(?string $phoneNumber): Author
+    {
+        $this->phoneNumber = $phoneNumber;
+        return $this;
+    }
+
+    /**
+     * @return Image|null
+     */
+    public function getImage(): ?Image
+    {
+        return $this->image;
+    }
+
+    /**
+     * @param Image|null $image
+     * @return Author
+     */
+    public function setImage(?Image $image): Author
+    {
+        $this->image = $image;
         return $this;
     }
 

@@ -56,6 +56,7 @@ class AuthorManager
             ->setFirstName($user->getFirstName())
             ->setLastName($user->getLastName())
             ->setUserId($user->getId())
+            ->setImage($user->getImage())
             ->setEnabled(false);
 
         return $this->save($author);
