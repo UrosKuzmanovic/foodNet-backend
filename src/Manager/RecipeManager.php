@@ -2,6 +2,7 @@
 
 namespace App\Manager;
 
+use App\Entity\Dto\SearchParametersDto;
 use App\Entity\Recipe;
 use App\Repository\RecipeRepository;
 use App\Service\Microservices\AuthenticatorService;
@@ -35,24 +36,12 @@ class RecipeManager
     }
 
     /**
-     * @return Recipe[]
+     * @param SearchParametersDto $parameters
+     * @return array
      */
-    public function findForFeed($parameters): array
+    public function findForFeed(SearchParametersDto $parameters): array
     {
-        $parametersArray = [
-            'archived' => false,
-            'deletedAt' => null
-        ];
-
-        if (isset($parameters->authorId) && $parameters->authorId) {
-            $parametersArray['author'] = $parameters->authorId;
-        }
-
-        if (isset($parameters->archived) && $parameters->archived) {
-            $parametersArray['archived'] = $parameters->archived;
-        }
-
-        return $this->repository->findBy($parametersArray);
+        return $this->repository->listForFeed($parameters);
     }
 
     /**

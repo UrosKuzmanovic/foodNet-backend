@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Dto\SearchParametersDto;
 use App\Entity\Recipe;
 use App\Manager\RecipeManager;
 use App\Service\ImageService;
@@ -50,7 +51,8 @@ class RecipeController extends AbstractController
      */
     public function list(Request $request): JsonResponse
     {
-        $parameters = json_decode($request->getContent());
+        /** @var SearchParametersDto $parameters */
+        $parameters = $this->serializer->deserialize($request->getContent(), SearchParametersDto::class, 'json');
 
         return $this->json([
             'status' => Response::HTTP_OK,

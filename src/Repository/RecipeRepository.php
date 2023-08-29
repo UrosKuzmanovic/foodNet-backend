@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Dto\SearchParametersDto;
 use App\Entity\Recipe;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -28,6 +29,11 @@ class RecipeRepository extends ServiceEntityRepository
      */
     public function save(Recipe $entity): Recipe
     {
+        // TODO fix pre persist listener
+        if (!$entity->getCreatedAt()) {
+            $entity->setCreatedAt(new \DateTime());
+        }
+
         $this->getEntityManager()->persist($entity);
         $this->getEntityManager()->flush();
 
@@ -44,28 +50,35 @@ class RecipeRepository extends ServiceEntityRepository
         $this->getEntityManager()->flush();
     }
 
-//    /**
-//     * @return Recipe[] Returns an array of Recipe objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('r')
-//            ->andWhere('r.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('r.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
+    /**
+     * @param SearchParametersDto $parameters
+     * @return Recipe[]
+     */
+    public function listForFeed(SearchParametersDto $parameters): array
+    {
+        $qb = $this->createQueryBuilder('r')
+            ->select()
+            ->leftJoin('r.author', 'a')
+            ->leftJoin('r.tags', 't')
+            ->where('r.archived = :archived')
+            ->setParameter('archived', $parameters->getArchived())
+            ->andWhere('r.deletedAt is null');
 
-//    public function findOneBySomeField($value): ?Recipe
-//    {
-//        return $this->createQueryBuilder('r')
-//            ->andWhere('r.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+        if ($parameters->getAuthorId()) {
+            $qb->andWhere('a.id = :authorId')
+                ->setParameter('authorId', $parameters->getAuthorId());
+        }
+
+        if ($parameters->getSearch()) {
+            $qb->andWhere($qb->expr()->orX(
+                $qb->expr()->like('r.name', ':search'),
+                $qb->expr()->like('t.name', ':search'),
+            ))
+                ->setParameter('search', '%' . $parameters->getSearch() . '%');
+        }
+
+        $qb->orderBy('r.createdAt', 'desc');
+
+        return $qb->getQuery()->execute();
+    }
 }
